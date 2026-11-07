@@ -75,7 +75,7 @@ jobs:
           assert dist.requires == ["aiohttp>=3.14.4"], dist.requires
           assert dist.metadata["Requires-Python"] == ">=3.12"
           license_text = dist.read_text("licenses/LICENSE") or ""
-          for notice in ("Copyright (c) 2020-2021 Ilja Leiko", "Copyright (c) 2026 Ruslan Sayfutdinov"):
+          for notice in ("Copyright (c) 2020 Ilja Leiko", "Copyright (c) 2026 Ruslan Sayfutdinov"):
               assert notice in license_text, notice
           print(f"ghome-local-api {dist.version} on Python {sys.version}")
           '
