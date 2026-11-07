@@ -31,7 +31,10 @@ dev = [
     "dprint-py>=0.63.0.0",
     "mypy>=2.4.0",
     "pylint>=4.1.3",
+    "pytest>=9.2.0",
+    "pytest-cov>=7.1.0",
     "ruff>=0.17.1",
+    "trustme>=1.2.1",
 ]
 
 [project.urls]
@@ -143,6 +146,11 @@ ignore = [
     "ISC001",
 ]
 
+[tool.ruff.lint.per-file-ignores]
+# Each call takes a timeout for aiohttp's ClientTimeout, as ha-google-home's
+# requests set it, rather than leaving the caller to use asyncio.timeout
+"ghome_local_api/client.py" = ["ASYNC109"]
+
 [tool.ruff.lint.isort]
 force-sort-within-sections = true
 combine-as-imports = true
@@ -185,6 +193,19 @@ disable = [
     "consider-using-namedtuple-or-dataclass",
     "consider-using-assignment-expr",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["--cov", "--cov-report=term-missing"]
+filterwarnings = ["error"]
+
+[tool.coverage.run]
+branch = true
+source = ["ghome_local_api"]
+
+[tool.coverage.report]
+# A chosen gate, not a substitute for the behaviour tests
+fail_under = 90
 
 [tool.mypy]
 python_version = "3.12"
