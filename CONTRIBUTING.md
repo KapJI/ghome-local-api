@@ -70,7 +70,10 @@ Pull requests that change Python code need a label from a maintainer, such as `b
 [Kodiak](https://kodiakhq.com/) squash-merges a pull request once a maintainer adds the `automerge` label and the required checks pass.
 It also merges Dependabot's minor and patch updates without the label; major updates wait for a maintainer.
 
-Nothing is uploaded to PyPI yet: publishing a GitHub release only builds the package.
+Publishing a GitHub release uploads the package to PyPI. The `Publish` workflow builds the wheel and sdist from the
+release tag, which sets their version, then waits for a maintainer to approve the upload in the `release` environment.
+PyPI accepts it through [trusted publishing](https://docs.pypi.org/trusted-publishers/), so the repository holds no PyPI
+token.
 
 ## Any contributions you make will be under the MIT Software License
 
