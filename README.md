@@ -15,12 +15,11 @@ The package is planned to contain the client that ha-google-home uses to send re
 
 ## Origin
 
-- The project tooling (formatter, linter and type checker settings, GitHub workflows and their configuration) is adapted from glocaltokens at commit [`6b910db`](https://github.com/leikoilja/glocaltokens/tree/6b910db1fe3e2b2d2fc74ffa299e7a1792f5f6c4).
-- The client code is to be moved from ha-google-home in a later change.
+The client code is to be moved from ha-google-home in a later change.
 
 ## License
 
-MIT, see [LICENSE](https://github.com/KapJI/ghome-local-api/blob/main/LICENSE). Its `Copyright (c) 2020-2021 Ilja Leiko` notice covers ha-google-home (2020) and glocaltokens (2021), the two projects this one builds on.
+MIT, see [LICENSE](https://github.com/KapJI/ghome-local-api/blob/main/LICENSE). Its `Copyright (c) 2020 Ilja Leiko` notice covers the client code that is to be moved from ha-google-home.
 
 ## Contributing
 
