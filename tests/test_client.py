@@ -2,6 +2,7 @@
 
 import asyncio
 from collections.abc import Awaitable, Callable
+from http import HTTPStatus
 import json
 import socket
 from unittest.mock import patch
@@ -428,12 +429,18 @@ class InfoStatusTests(DeviceTestCase):
                 assert observer.statuses == [status]
 
     async def test_cut_off_200_does_not_count(self) -> None:
-        """A 200 whose body breaks off raises with .status 200, so it isn't counted."""
+        """A 200 whose body breaks off raises with .status 200, so it isn't counted.
+
+        The observer still saw the 200, before the body: catches calling it only
+        once the body has come.
+        """
         self.device.handler = cut_off
+        observer = Observer()
         with pytest.raises(ConnectionLostError) as raised:
-            await self.client.get_info_status(HOST)
+            await self.client.get_info_status(HOST, on_response=observer)
         assert raised.value.status == 200
         assert isinstance(raised.value.__cause__, ClientPayloadError)
+        assert observer.statuses == [200]
 
     async def test_failure_while_releasing_still_counts(self) -> None:
         """A failure while the answer is released, after it counted, still returns its status."""
@@ -621,6 +628,9 @@ class FailureTests(DeviceTestCase):
                 assert raised.type is error_class
                 assert (error.host, error.path) == (HOST, "setup/assistant/alarms")
                 assert getattr(error, "status", None) == status
+                if isinstance(error, StatusError):
+                    # The reason aiohttp's server sends with each status
+                    assert error.reason == HTTPStatus(error.status).phrase
                 if cause is None:
                     assert error.__cause__ is None
                 else:
@@ -644,14 +654,40 @@ class FailureTests(DeviceTestCase):
             await client.get_alarm_volume(HOST, TOKEN)
         assert raised.value.__cause__ is error
 
-    async def test_status_reason(self) -> None:
-        """A status error keeps the device's reason, and its message names the request."""
-        self.device.handler = reply(status=404)
-        with pytest.raises(NotFoundError) as raised:
-            await self.client.get_device_info(HOST)
-        assert raised.value.reason == "Not Found"
+    async def test_failure_while_releasing_a_status(self) -> None:
+        """A failure while a non-200 is released raises a RequestError that keeps the status.
+
+        Catches keeping only a 200's status, which ha-google-home's handling of the
+        status it already saw relies on.
+        """
+
+        async def fail() -> None:
+            raise ClientConnectionError("closed")
+
+        exchange = StubExchange(StubResponse(500), fail)
+        client = GoogleHomeLocalClient(StubSession(exchange).as_session())
+        with pytest.raises(ConnectionLostError) as raised:
+            await client.get_alarm_volume(HOST, TOKEN)
+        assert raised.value.status == 500
+
+    async def test_reason_stays_out_of_the_message(self) -> None:
+        """A status error keeps the device's reason, but its message has only the status.
+
+        The reason is the device's text, and here it is the token. Catches a message
+        that repeats the reason.
+        """
+
+        async def answer(request: web.Request) -> web.StreamResponse:
+            return web.Response(
+                status=401, reason=request.headers["cast-local-authorization-token"]
+            )
+
+        self.device.handler = answer
+        with pytest.raises(TokenRejectedError) as raised:
+            await self.client.get_alarm_volume(HOST, TOKEN)
+        assert raised.value.reason == TOKEN
         assert str(raised.value) == (
-            f"{HOST} answered setup/eureka_info?params=name,device_info with 404 Not Found"
+            f"{HOST} answered setup/assistant/alarms/volume with HTTP 401"
         )
 
     async def test_host_that_is_not_an_address(self) -> None:

@@ -76,17 +76,17 @@ The settings replies accept any JSON. Their `raw` attribute holds the decoded re
 
 All errors derive from `GoogleHomeLocalError` and have `host` and `path` attributes.
 
-| Error                     | When                                                                                         |
-| ------------------------- | -------------------------------------------------------------------------------------------- |
-| `CannotConnectError`      | the connection failed, for example because the device is offline                             |
-| `ConnectionLostError`     | the connection closed or the answer broke off                                                |
-| `AnswerTimeoutError`      | the device didn't answer within `timeout`                                                    |
-| `ClientRequestError`      | aiohttp failed the request otherwise, for example after too many redirects                   |
-| `TokenRejectedError`      | the device answered 401: get a new token                                                     |
-| `NotFoundError`           | the device answered 404                                                                      |
-| `StatusError`             | any other status than 200. It has `status` and `reason`; the two errors above derive from it |
-| `InvalidJsonError`        | a 200 whose JSON can't be decoded. The info calls return `None` instead                      |
-| `UnexpectedResponseError` | an alarms or Bluetooth results reply in another form. It has the reply as `body`             |
+| Error                     | When                                                                                                                                                                  |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CannotConnectError`      | the connection failed, for example because the device is offline                                                                                                      |
+| `ConnectionLostError`     | the connection closed or the answer broke off                                                                                                                         |
+| `AnswerTimeoutError`      | the device didn't answer within `timeout`                                                                                                                             |
+| `ClientRequestError`      | aiohttp failed the request otherwise, for example after too many redirects                                                                                            |
+| `TokenRejectedError`      | the device answered 401: get a new token                                                                                                                              |
+| `NotFoundError`           | the device answered 404                                                                                                                                               |
+| `StatusError`             | any other status than 200. It has `status`, and `reason`, the text the device sent with the status, which its message leaves out. The two errors above derive from it |
+| `InvalidJsonError`        | a 200 whose JSON can't be decoded. The info calls return `None` instead                                                                                               |
+| `UnexpectedResponseError` | an alarms or Bluetooth results reply in another form. It has the reply as `body`                                                                                      |
 
 The first four derive from `RequestError`. Its `__cause__` is aiohttp's exception or `TimeoutError`, and its `status` is the status of an answer that came before the failure, such as a 200 whose body broke off, or `None`.
 
@@ -116,11 +116,11 @@ The client reads JSON with `response.json()`, so your session's response class d
 
 ## Sensitive data
 
-The client holds no token: you pass it to each call. Error messages name the host and path but not the token or the reply. Some objects do carry sensitive data:
+The client holds no token: you pass it to each call. Error messages name the host, path and status, but not the token, the reply or the device's reason text. Some objects do carry sensitive data:
 
 - the aiohttp exception in `__cause__` can hold the request, including the token header;
 - a redirect that aiohttp follows sends the token header to the new location, even on another host: aiohttp removes only standard credential headers, such as `Authorization`, when the host changes;
-- `raw`, `UnexpectedResponseError.body` and the response passed to `on_response` hold what the device sent, such as alarm labels and device IDs.
+- `raw`, `UnexpectedResponseError.body`, `StatusError.reason` and the response passed to `on_response` hold what the device sent, such as alarm labels and device IDs.
 
 Don't log or store these objects whole.
 

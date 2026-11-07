@@ -1,8 +1,8 @@
 """The errors of a request to a device.
 
-Their messages name the device's host and the path, never its token or a reply.
-The aiohttp exception chained as __cause__ isn't sanitised: it can hold the request
-headers, with the token.
+Their messages name the device's host, the path and any status, never its token, a
+reply or the reason text a device sends with its status. The aiohttp exception chained
+as __cause__ isn't sanitised: it can hold the request headers, with the token.
 """
 
 from .models import JsonValue
@@ -53,16 +53,18 @@ class ClientRequestError(RequestError):
 
 
 class StatusError(GoogleHomeLocalError):
-    """The device answered with a status other than 200."""
+    """The device answered with a status other than 200.
+
+    The reason is the text the device sent with the status, such as "Not Found". It
+    comes from the device, so it is left out of the message; treat it as untrusted.
+    """
 
     def __init__(
         self, *, host: str, path: str, status: int, reason: str | None
     ) -> None:
         """Create the error of an answer with this status and reason."""
         super().__init__(
-            f"{host} answered {path} with {status} {reason or ''}".rstrip(),
-            host=host,
-            path=path,
+            f"{host} answered {path} with HTTP {status}", host=host, path=path
         )
         self.status = status
         self.reason = reason
