@@ -8,7 +8,7 @@ This project is under development. The `ghome_local_api` package contains no cod
 
 ## Scope
 
-The package is planned to contain the client that ha-google-home uses to send requests to Google Home devices on your local network:
+The package is planned to contain the client that ha-google-home uses to send requests to Google Home devices on your local network. It leaves two jobs to other projects:
 
 - It won't get the local authentication tokens that these requests need. [glocaltokens](https://github.com/leikoilja/glocaltokens) does that.
 - Home Assistant logic, such as polling and entity state, stays in ha-google-home.
