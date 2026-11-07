@@ -62,13 +62,14 @@ jobs:
         run: |
           uv run --isolated --resolution lowest-direct pytest --cov-report=xml
 
-      # Codecov merges the reports from both Python versions. With OIDC the
-      # repository needs no Codecov token secret. Pull requests from forks get
-      # no OIDC token and upload without one, which Codecov accepts for public
-      # repositories.
+      # Codecov merges the reports from both Python versions; after_n_builds
+      # in codecov.yml must match their number. With OIDC the repository needs
+      # no Codecov token secret. Pull requests from forks get no OIDC token and
+      # upload without one, which Codecov accepts for public repositories.
       - name: Upload coverage to Codecov
-        # A failed upload only leaves Codecov's report out of date, so it
-        # doesn't fail the checks.
+        # A failed upload leaves Codecov's report out of date and the commit
+        # without Codecov's statuses or an updated comment, but doesn't fail
+        # the checks.
         continue-on-error: true
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
