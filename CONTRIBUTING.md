@@ -46,9 +46,10 @@ The tests need no device: they run the client against a fake device on a local T
 branch coverage of the package drops below 90%.
 
 On every pull request, CI runs the checks on Python 3.12 and 3.14, then the tests again with the lowest versions of the direct
-dependencies that `pyproject.toml` allows. The test output shows the aiohttp version each run used. CI then builds the package,
-installs the wheel and checks that it contains the `py.typed` typing marker and the license's copyright notices, and that it
-depends only on aiohttp.
+dependencies that `pyproject.toml` allows. The test output shows the aiohttp version each run used. These runs also
+upload their coverage to [Codecov](https://app.codecov.io/gh/KapJI/ghome-local-api). CI then builds the package, installs
+the wheel and checks that it contains the `py.typed` typing marker and the license's copyright notices, and that it depends
+only on aiohttp.
 
 ## Labels and releases
 
