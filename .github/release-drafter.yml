@@ -1,0 +1,55 @@
+name-template: "v$RESOLVED_VERSION"
+tag-template: "v$RESOLVED_VERSION"
+categories:
+  # PRs with this label are left out of the release notes entirely.
+  - type: "pre-exclude"
+    when:
+      label: "skip-release"
+  # major/minor/patch labels are intentionally not used for version
+  # resolution: Dependabot applies them to describe the dependency's own
+  # version jump, which says nothing about this package.
+  - type: "version-resolver"
+    semver-increment: "major"
+    when:
+      label: "breaking"
+  - type: "version-resolver"
+    semver-increment: "minor"
+    when:
+      label: "feature"
+  # Keep this above the other headings: exclusive stops later headings from
+  # matching, so a breaking PR is listed only here, even with other labels.
+  - title: "💥 Breaking Changes"
+    exclusive: true
+    when:
+      label: "breaking"
+  - title: "🚀 Features"
+    when:
+      labels:
+        - "feature"
+        - "performance"
+  - title: "🐛 Bug Fixes"
+    when:
+      label: "bug"
+  - title: "📄 Documentation"
+    when:
+      label: "documentation"
+  - title: "🔧 Internal structure enhancement"
+    when:
+      labels:
+        - "github structure"
+        - "refactoring"
+        - "removal"
+  - title: "🧰 Maintenance"
+    when:
+      label: "test"
+  - title: "🧱 Dependency Updates"
+    when:
+      label: "dependencies"
+change-template: "- $TITLE @$AUTHOR (#$NUMBER)"
+change-title-escapes: '\<*_&' # You can add # and @ to disable mentions, and add ` to disable code blocks.
+version-resolver:
+  default: patch
+template: |
+  ## Changes
+
+  $CHANGES

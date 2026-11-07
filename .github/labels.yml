@@ -1,0 +1,89 @@
+---
+# Labels names are important as they are used by Release Drafter to decide
+# regarding where to record them in changelog or if to skip them.
+#
+# The repository labels will be automatically configured using this file and
+# the GitHub Action https://github.com/marketplace/actions/github-labeler.
+- name: breaking
+  description: Breaking change. Used for major release bump
+  color: b60205
+
+- name: bug
+  description: Something isn't working
+  color: d73a4a
+
+- name: dependencies
+  description: Pull requests that update a dependency file
+  color: 0366d6
+
+- name: documentation
+  description: Improvements or additions to documentation
+  color: 0075ca
+
+- name: duplicate
+  description: This issue or pull request already exists
+  color: cfd3d7
+
+- name: feature
+  description: New feature or request
+  color: a2eeef
+
+- name: github structure
+  description: Pull requests that update Github actions/workflow code
+  color: "000000"
+
+- name: good first issue
+  description: Good for newcomers
+  color: 7057ff
+
+- name: help wanted
+  description: Extra attention is needed
+  color: 008672
+
+- name: invalid
+  description: This doesn't seem right
+  color: e4e669
+
+# major/minor/patch describe the dependency's version jump on Dependabot PRs.
+# They do not affect this project's version: release bumps are driven by the
+# "breaking" and "feature" labels, see release-drafter.yml.
+- name: major
+  description: Semver-major dependency update
+  color: 16970B
+
+- name: minor
+  description: Semver-minor dependency update
+  color: 16970B
+
+- name: patch
+  description: Semver-patch dependency update
+  color: 16970B
+
+- name: performance
+  description: Performance
+  color: "016175"
+
+# Leaves a pull request out of the release notes
+- name: skip-release
+  description: Skip release
+  color: "000000"
+
+- name: question
+  description: Further information is requested
+  color: d876e3
+
+- name: refactoring
+  description: Refactoring
+  color: ef67c4
+
+- name: removal
+  description: Removals and Deprecations
+  color: 9ae7ea
+
+- name: test
+  description: Changing tests
+  color: b1fc6f
+
+- name: wontfix
+  description: This will not be worked on
+  color: ffffff

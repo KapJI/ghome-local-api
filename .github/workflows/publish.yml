@@ -1,0 +1,37 @@
+# This workflow builds the release files but doesn't upload them. Uploading to
+# PyPI needs a trusted publisher, a `release` environment and `id-token: write`;
+# they are set up separately, with the maintainer's approval, before the first
+# release.
+name: Publish
+
+concurrency: release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.14"
+
+jobs:
+  publish:
+    name: Build
+    if: github.repository_owner == 'KapJI'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Prepare and install deps
+        uses: ./.github/actions/install-deps
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Build package
+        run: uv build
