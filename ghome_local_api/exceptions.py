@@ -81,8 +81,9 @@ class NotFoundError(StatusError):
 class InvalidJsonError(GoogleHomeLocalError):
     """The device answered 200 with a body that says it's JSON but can't be decoded.
 
-    __cause__ is the decoder's error: a ValueError, such as JSONDecodeError or
-    UnicodeDecodeError, or a RecursionError.
+    __cause__ is the decoder's error: a ValueError (such as JSONDecodeError or
+    UnicodeDecodeError), a RecursionError, or a LookupError for a charset that names a
+    codec that isn't a text encoding.
     """
 
     def __init__(self, *, host: str, path: str) -> None:

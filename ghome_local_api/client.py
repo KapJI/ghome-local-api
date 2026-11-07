@@ -157,8 +157,9 @@ class GoogleHomeLocalClient:
                         reply = None if token is None else {}
                     # ValueError includes JSONDecodeError and UnicodeDecodeError. Python's
                     # json raises a plain one for an integer of more than 4300 digits, and
-                    # RecursionError for deep nesting
-                    except (ValueError, RecursionError) as error:
+                    # RecursionError for deep nesting. bytes.decode raises LookupError for
+                    # a charset that names a codec that isn't a text encoding, such as base64
+                    except (ValueError, RecursionError, LookupError) as error:
                         if token is not None:
                             raise InvalidJsonError(host=host, path=path) from error
         except (ClientError, TimeoutError) as error:
