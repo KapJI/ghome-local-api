@@ -20,7 +20,7 @@ The package is planned to contain the client that ha-google-home uses to send re
 
 ## License
 
-MIT, see [LICENSE](https://github.com/KapJI/ghome-local-api/blob/main/LICENSE). It keeps Ilja Leiko's copyright notices from ha-google-home (2020) and glocaltokens (2021), the two projects this one builds on.
+MIT, see [LICENSE](https://github.com/KapJI/ghome-local-api/blob/main/LICENSE). Its `Copyright (c) 2020-2021 Ilja Leiko` notice covers ha-google-home (2020) and glocaltokens (2021), the two projects this one builds on.
 
 ## Contributing
 

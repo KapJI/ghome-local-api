@@ -53,6 +53,9 @@ The next release uses the biggest of these among the pull requests merged since 
 Pull requests that only change dependencies, documentation, tests or GitHub files are labelled automatically.
 Pull requests that change Python code need a label from a maintainer, such as `bug`, `feature` or `refactoring`.
 
+[Kodiak](https://kodiakhq.com/) squash-merges a pull request once a maintainer adds the `automerge` label and the required checks pass.
+It also merges Dependabot's minor and patch updates without the label; major updates wait for a maintainer.
+
 Nothing is uploaded to PyPI yet: publishing a GitHub release only builds the package.
 
 ## Any contributions you make will be under the MIT Software License
