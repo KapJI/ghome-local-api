@@ -1,0 +1,20 @@
+codecov:
+  notify:
+    # Wait for the uploads from both Python versions before reporting, so
+    # statuses and comments come from the merged report, not from one.
+    after_n_builds: 2
+
+# Neither status is a required check for main, so they don't block merging.
+coverage:
+  status:
+    project:
+      default:
+        # Fail when total coverage drops by more than the threshold from
+        # the base commit.
+        target: auto
+        threshold: 0.5%
+    patch:
+      default:
+        # Fail when under 90% of the changed lines are covered, the
+        # percentage of the coverage gate in pyproject.toml.
+        target: 90%

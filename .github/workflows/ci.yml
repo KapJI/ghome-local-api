@@ -18,6 +18,9 @@ jobs:
       fail-fast: false
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write # The Codecov upload authenticates with GitHub OIDC
     steps:
       - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -57,7 +60,28 @@ jobs:
       # test header shows the aiohttp version that was resolved.
       - name: Run tests with the lowest allowed dependencies
         run: |
-          uv run --isolated --resolution lowest-direct pytest
+          uv run --isolated --resolution lowest-direct pytest --cov-report=xml
+
+      # Codecov merges the reports from both Python versions; after_n_builds
+      # in codecov.yml must match their number. With OIDC the repository needs
+      # no Codecov token secret. Pull requests from forks get no OIDC token and
+      # upload without one, which Codecov accepts for public repositories.
+      - name: Upload coverage to Codecov
+        # A failed upload leaves Codecov's report out of date and the commit
+        # without Codecov's statuses or an updated comment, but doesn't fail
+        # the checks.
+        continue-on-error: true
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        with:
+          name: Python ${{ matrix.python-version }}
+          files: coverage.xml
+          disable_search: true
+          use_oidc: true
+          # Without this, an uploader that fails its signature check still runs.
+          fail_ci_if_error: true
+          # Download the uploader outside the checkout, so the sdist built
+          # below doesn't pick it up.
+          cleanup: true
 
       - name: Build the package
         run: uv build

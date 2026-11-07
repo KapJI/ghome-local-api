@@ -1,5 +1,7 @@
 # ghome-local-api
 
+[![Coverage](https://codecov.io/gh/KapJI/ghome-local-api/graph/badge.svg)](https://app.codecov.io/gh/KapJI/ghome-local-api)
+
 An asynchronous Python client for the local API of Google Home devices, moved out of [ha-google-home](https://github.com/leikoilja/ha-google-home).
 
 It reads and deletes alarms and timers, reads and sets the alarm volume and Do Not Disturb, reboots a device, asks it about itself and its firmware, and runs its Bluetooth scans. It is a thin protocol client: it sends one request per call over your [aiohttp](https://docs.aiohttp.org/) session and returns typed replies. It keeps no state, retries nothing and doesn't log.
