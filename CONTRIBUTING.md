@@ -1,6 +1,6 @@
 # Contribution guidelines
 
-This project is in early development: the package has no client code yet. Before you start a larger change, open an [issue](../../issues) to discuss it.
+This project is in early development. Before you start a larger change, open an [issue](../../issues) to discuss it.
 
 ## Pull requests
 
@@ -19,7 +19,8 @@ uv downloads a matching Python if you don't have one.
 
 The checks run with [prek](https://prek.j178.dev/), a faster drop-in replacement for `pre-commit`, using the settings included in the repository.
 They format the code with [ruff](https://docs.astral.sh/ruff/) and [dprint](https://dprint.dev/), check it with ruff, mypy and pylint,
-look for typos with codespell, and check the GitHub workflow and configuration files with check-jsonschema and [zizmor](https://docs.zizmor.sh/).
+run the tests with pytest, look for typos with codespell, and check the GitHub workflow and configuration files with check-jsonschema
+and [zizmor](https://docs.zizmor.sh/).
 
 Activate the `prek` git hook:
 
@@ -35,8 +36,19 @@ You can also run the checks on all repository files manually with this command:
 $ uvx prek run --all-files
 ```
 
-There are no tests yet. On every pull request, CI runs the checks on Python 3.12 and 3.14, builds the package, installs the wheel
-and checks that it contains the `py.typed` typing marker and the license's copyright notices, and that it depends only on aiohttp.
+To run only the tests:
+
+```console
+$ uv run pytest
+```
+
+The tests need no device: they run the client against a fake device on a local TLS server, with invented data. They fail if
+branch coverage of the package drops below 90%.
+
+On every pull request, CI runs the checks on Python 3.12 and 3.14, then the tests again with the lowest versions of the direct
+dependencies that `pyproject.toml` allows. The test output shows the aiohttp version each run used. CI then builds the package,
+installs the wheel and checks that it contains the `py.typed` typing marker and the license's copyright notices, and that it
+depends only on aiohttp.
 
 ## Labels and releases
 

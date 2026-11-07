@@ -53,6 +53,12 @@ jobs:
         run: |
           uvx prek run --hook-stage manual python-typing-update --all-files --show-diff-on-failure --color=always
 
+      # The runtime floor follows Home Assistant's pin, so test it too. The
+      # test header shows the aiohttp version that was resolved.
+      - name: Run tests with the lowest allowed dependencies
+        run: |
+          uv run --isolated --resolution lowest-direct pytest
+
       - name: Build the package
         run: uv build
 
