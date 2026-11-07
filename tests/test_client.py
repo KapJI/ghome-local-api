@@ -503,19 +503,23 @@ class BodyTests(DeviceTestCase):
 
         aiohttp's default decoder, Python's json, raises a plain ValueError for an
         integer of more than 4300 digits (Python's default limit) and RecursionError for
-        deep nesting. Catches an except clause that lets those through.
+        deep nesting. aiohttp's default response class decodes the body with the
+        charset its content type names, and bytes.decode raises LookupError for a codec
+        that isn't a text encoding, such as base64. Catches an except clause that lets
+        those through.
         """
         # Past what Python 3.14 decodes on the default 8 MB stack; 3.12 and 3.13
         # stop far sooner
         depth = 1_000_000
-        for body, cause in (
-            (b'{"volume": ', json.JSONDecodeError),
-            (b'{"volume": "\xff"}', UnicodeDecodeError),
-            (b'{"volume": ' + b"1" * 4301 + b"}", ValueError),
-            (b"[" * depth + b"]" * depth, RecursionError),
+        for body, content_type, cause in (
+            (b'{"volume": ', "application/json", json.JSONDecodeError),
+            (b'{"volume": "\xff"}', "application/json", UnicodeDecodeError),
+            (b'{"volume": ' + b"1" * 4301 + b"}", "application/json", ValueError),
+            (b"[" * depth + b"]" * depth, "application/json", RecursionError),
+            (b"{}", "application/json; charset=base64", LookupError),
         ):
             with self.subTest(cause.__name__):
-                self.device.handler = reply(body)
+                self.device.handler = reply(body, content_type=content_type)
                 with pytest.raises(InvalidJsonError) as raised:
                     await self.client.get_alarm_volume(HOST, TOKEN)
                 # Exactly: JSONDecodeError and UnicodeDecodeError are ValueErrors too
