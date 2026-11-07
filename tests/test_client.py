@@ -368,12 +368,16 @@ class ObserverTests(DeviceTestCase):
         assert paths == ["/elsewhere"]
 
     async def test_exception_propagates(self) -> None:
-        """An exception that the observer raises leaves the call unwrapped."""
+        """An exception that the observer raises leaves the call unwrapped.
+
+        A ValueError, like a decoding error: catches calling the observer where the
+        reply's decoding errors are caught.
+        """
 
         def observe(_response: ClientResponse) -> None:
-            raise RuntimeError("observer failed")
+            raise ValueError("observer failed")
 
-        with pytest.raises(RuntimeError, match="observer failed"):
+        with pytest.raises(ValueError, match="observer failed"):
             await self.client.get_alarm_volume(HOST, TOKEN, on_response=observe)
 
     async def test_reboot_runs_before_cleanup(self) -> None:
@@ -495,16 +499,28 @@ class BodyTests(DeviceTestCase):
                 assert (info is not None) == is_info
 
     async def test_undecodable_json(self) -> None:
-        """Undecodable JSON raises InvalidJsonError with a token, and gives None without."""
+        """Undecodable JSON raises InvalidJsonError with a token, and gives None without.
+
+        aiohttp's default decoder, Python's json, raises a plain ValueError for an
+        integer of more than 4300 digits (Python's default limit) and RecursionError for
+        deep nesting. Catches an except clause that lets those through.
+        """
+        # Past what Python 3.14 decodes on the default 8 MB stack; 3.12 and 3.13
+        # stop far sooner
+        depth = 1_000_000
         for body, cause in (
             (b'{"volume": ', json.JSONDecodeError),
             (b'{"volume": "\xff"}', UnicodeDecodeError),
+            (b'{"volume": ' + b"1" * 4301 + b"}", ValueError),
+            (b"[" * depth + b"]" * depth, RecursionError),
         ):
             with self.subTest(cause.__name__):
                 self.device.handler = reply(body)
                 with pytest.raises(InvalidJsonError) as raised:
                     await self.client.get_alarm_volume(HOST, TOKEN)
-                assert isinstance(raised.value.__cause__, cause)
+                # Exactly: JSONDecodeError and UnicodeDecodeError are ValueErrors too
+                # pylint: disable-next=unidiomatic-typecheck
+                assert type(raised.value.__cause__) is cause
                 assert raised.value.status == 200
                 assert await self.client.get_build_info(HOST) is None
 
@@ -689,6 +705,29 @@ class FailureTests(DeviceTestCase):
         assert str(raised.value) == (
             f"{HOST} answered setup/assistant/alarms/volume with HTTP 401"
         )
+
+    async def test_response_without_reason(self) -> None:
+        """A response without a reason, as Home Assistant's test mock gives, still works.
+
+        Its 200 returns the reply, and another status raises a StatusError with reason
+        None. Catches reading the reason of every answer, or reading it unguarded.
+        """
+
+        async def leave() -> None:
+            pass
+
+        def client_answering(status: int) -> GoogleHomeLocalClient:
+            response = StubResponse(status)
+            del response.reason
+            exchange = StubExchange(response, leave)
+            return GoogleHomeLocalClient(StubSession(exchange).as_session())
+
+        reply_200 = await client_answering(200).get_alarm_volume(HOST, TOKEN)
+        assert reply_200.raw == {}
+        with pytest.raises(StatusError) as raised:
+            await client_answering(500).get_alarm_volume(HOST, TOKEN)
+        assert raised.value.status == 500
+        assert raised.value.reason is None
 
     async def test_host_that_is_not_an_address(self) -> None:
         """A host that isn't an IP address raises ValueError before anything is sent."""
