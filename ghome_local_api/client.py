@@ -3,7 +3,6 @@
 from collections.abc import Callable, Sequence
 from http import HTTPStatus
 import ipaddress
-import json
 
 from aiohttp import (
     ClientConnectionError,
@@ -132,7 +131,6 @@ class GoogleHomeLocalClient:
         url = device_url(host, path, self._port)
         client_timeout = ClientTimeout(total=timeout)
         status: int | None = None
-        reason: str | None = None
         reply: JsonValue = None
         try:
             async with (
@@ -149,7 +147,7 @@ class GoogleHomeLocalClient:
                     timeout=client_timeout,
                 )
             ) as response:
-                status, reason = response.status, response.reason
+                status = response.status
                 if on_response is not None:
                     on_response(response)
                 if status == HTTPStatus.OK and read_body:
@@ -157,13 +155,17 @@ class GoogleHomeLocalClient:
                         reply = await response.json()
                     except ContentTypeError:
                         reply = None if token is None else {}
-                    except (json.JSONDecodeError, UnicodeDecodeError) as error:
+                    # ValueError includes JSONDecodeError and UnicodeDecodeError. Python's
+                    # json raises a plain one for an integer of more than 4300 digits, and
+                    # RecursionError for deep nesting
+                    except (ValueError, RecursionError) as error:
                         if token is not None:
                             raise InvalidJsonError(host=host, path=path) from error
         except (ClientError, TimeoutError) as error:
             raise _request_error(error, host, path, status) from error
         if status != HTTPStatus.OK:
-            raise _status_error(host, path, status, reason)
+            # Home Assistant's test mock of a response has no reason
+            raise _status_error(host, path, status, getattr(response, "reason", None))
         return reply
 
     async def _get_info(
