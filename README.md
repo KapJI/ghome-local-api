@@ -1,5 +1,7 @@
 # ghome-local-api
 
+[![CI](https://github.com/KapJI/ghome-local-api/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/KapJI/ghome-local-api/actions/workflows/ci.yml)
+[![PyPI version](https://img.shields.io/pypi/v/ghome-local-api)](https://pypi.org/project/ghome-local-api/)
 [![Coverage](https://codecov.io/gh/KapJI/ghome-local-api/graph/badge.svg)](https://app.codecov.io/gh/KapJI/ghome-local-api)
 
 An asynchronous Python client for the local API of Google Home devices, moved out of [ha-google-home](https://github.com/leikoilja/ha-google-home).
@@ -134,7 +136,7 @@ Don't log or store these objects whole.
 
 ## Origin
 
-The client was moved from ha-google-home at commit [`0e3febad86d6adf777b97b05452d5d841c3edfa8`](https://github.com/leikoilja/ha-google-home/tree/0e3febad86d6adf777b97b05452d5d841c3edfa8): the requests from `custom_components/google_home/api.py`, `device_info.py` and `bluetooth.py`, the reply rules from `models.py`, `api.py`, `device_info.py`, `account.py` and `bluetooth.py`, and the paths and keys from `const.py`.
+The client was moved from ha-google-home at commit [`0e3febad86d6adf777b97b05452d5d841c3edfa8`](https://github.com/leikoilja/ha-google-home/tree/0e3febad86d6adf777b97b05452d5d841c3edfa8).
 
 ## License
 
