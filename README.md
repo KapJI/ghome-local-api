@@ -136,7 +136,7 @@ Don't log or store these objects whole.
 
 ## Origin
 
-The client was moved from ha-google-home at commit [`0e3febad86d6adf777b97b05452d5d841c3edfa8`](https://github.com/leikoilja/ha-google-home/tree/0e3febad86d6adf777b97b05452d5d841c3edfa8).
+The client was moved from ha-google-home at commit [`0e3feba`](https://github.com/leikoilja/ha-google-home/tree/0e3febad86d6adf777b97b05452d5d841c3edfa8).
 
 ## License
 
