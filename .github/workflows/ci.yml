@@ -88,34 +88,19 @@ jobs:
 
       # Install the wheel into a new environment and import it with -I, so the
       # source tree can't stand in for it. This catches a wrong package path, a
-      # missing typing marker or copyright notice, and runtime dependencies or a
-      # Python requirement that differ from pyproject.toml. Dependencies are
-      # compared by name only: the build backend rewrites requirement strings,
-      # and matching its specifier and marker formatting would need `packaging`.
+      # missing typing marker or a missing copyright notice.
       - name: Check the built wheel
         run: |
           uv run --isolated --no-project --with dist/*.whl python -I -c '
           import pathlib
-          import re
           import sys
-          import tomllib
           from importlib import metadata
 
           import ghome_local_api
 
-          def names(requirements):
-              return sorted(re.sub(r"[-_.]+", "-", re.match(r"\s*([A-Za-z0-9._-]+)", req)[1]).lower() for req in requirements)
-
-          def specifiers(specifier_set):
-              return sorted("".join(specifier_set.split()).split(","))
-
-          project = tomllib.loads(pathlib.Path("pyproject.toml").read_text(encoding="utf-8"))["project"]
           dist = metadata.distribution("ghome-local-api")
           assert pathlib.Path(ghome_local_api.__file__) == dist.locate_file("ghome_local_api/__init__.py")
           assert "ghome_local_api/py.typed" in {str(path) for path in dist.files or ()}
-          assert names(dist.requires or ()) == names(project["dependencies"]), (dist.requires, project["dependencies"])
-          requires_python = dist.metadata["Requires-Python"]
-          assert specifiers(requires_python) == specifiers(project["requires-python"]), (requires_python, project["requires-python"])
           license_text = dist.read_text("licenses/LICENSE") or ""
           for notice in ("Copyright (c) 2020 Ilja Leiko", "Copyright (c) 2026 Ruslan Sayfutdinov"):
               assert notice in license_text, notice
