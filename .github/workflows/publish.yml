@@ -1,7 +1,9 @@
-# This workflow builds the release files but doesn't upload them. Uploading to
-# PyPI needs a trusted publisher, a `release` environment and `id-token: write`;
-# they are set up separately, with the maintainer's approval, before the first
-# release.
+# Publishing a GitHub release runs this workflow. It builds the wheel and sdist
+# once, then uploads exactly those files to PyPI through trusted publishing:
+# PyPI accepts the upload job's short-lived GitHub OIDC token, so the
+# repository keeps no PyPI token. The upload needs a PyPI trusted publisher for
+# this workflow file and the `release` environment, and it waits for that
+# environment's required reviewer.
 name: Publish
 
 concurrency: release
@@ -17,7 +19,7 @@ env:
   PYTHON_VERSION: "3.14"
 
 jobs:
-  publish:
+  build:
     name: Build
     if: github.repository_owner == 'KapJI'
     runs-on: ubuntu-latest
@@ -35,3 +37,32 @@ jobs:
 
       - name: Build package
         run: uv build
+
+      - name: Store the built files
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+
+  # Only this job can get an OIDC token, and it runs no code from the
+  # repository: it uploads the files that the build job stored.
+  publish:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: release
+    permissions:
+      id-token: write # Trusted publishing and PEP 740 attestations use GitHub OIDC tokens
+    steps:
+      - name: Download the built files
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dist
+          path: dist/
+
+      # Unlike `uv publish`, the action also creates PEP 740 attestations,
+      # which PyPI shows as verified provenance for each file.
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
