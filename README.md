@@ -8,7 +8,7 @@ It reads and deletes alarms and timers, reads and sets the alarm volume and Do N
 
 ## Status
 
-No release has been published to PyPI yet.
+Versions before 1.0.0 may still change the API.
 
 These are unofficial endpoints: Google doesn't document them and can change them in a firmware update. Not every device has every endpoint. One that doesn't usually answers 404, which raises `NotFoundError`, but some refuse the connection instead, which raises `CannotConnectError`. A device that is starting can also answer 404 for a while.
 
@@ -17,6 +17,12 @@ These are unofficial endpoints: Google doesn't document them and can change them
 - Python 3.12 or newer, and aiohttp 3.14.4 or newer.
 - The device's IP address. A host name raises `ValueError`.
 - For most calls, the device's current local auth token. This package doesn't get tokens: [glocaltokens](https://github.com/leikoilja/glocaltokens) does. The info calls need no token.
+
+## Install
+
+```console
+$ pip install ghome-local-api
+```
 
 ## Quickstart
 
