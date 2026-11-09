@@ -49,8 +49,9 @@ On every pull request, CI runs the checks on Python 3.12 and 3.14, then the test
 dependencies that `pyproject.toml` allows. The test output shows the aiohttp version each run used. These runs also
 upload their coverage to [Codecov](https://app.codecov.io/gh/KapJI/ghome-local-api). Codecov's checks fail when under 90% of
 the changed lines are covered or total coverage drops by more than 0.5%, but they aren't required for merging.
-CI then builds the package, installs the wheel and checks that it contains the `py.typed` typing marker and the license's
-copyright notices, and that it depends only on aiohttp.
+CI then builds the package, installs the wheel in a new environment and checks that Python imports the package from the
+installed wheel, not the source tree, and that the wheel contains the `py.typed` typing marker and the license's
+copyright notices.
 
 ## Labels and releases
 
