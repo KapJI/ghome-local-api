@@ -64,8 +64,8 @@ in the notes and which version comes next:
 
 The next release uses the biggest of these among the pull requests merged since the last release.
 
-Pull requests that only change dependencies, documentation, tests or GitHub files are labelled automatically.
-Pull requests that change Python code need a label from a maintainer, such as `bug`, `feature` or `refactoring`.
+Dependabot labels its own pull requests. Every other pull request needs a label from a maintainer, such as `bug`,
+`feature`, `documentation` or `github structure`.
 
 [Kodiak](https://kodiakhq.com/) squash-merges a pull request once a maintainer adds the `automerge` label and the required checks pass.
 It also merges Dependabot's minor and patch updates without the label; major updates wait for a maintainer.
